@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<%- include('partials/head',{title:String(status)}) %>
+</head>
+<body>
+<main class="error-page">
+<a href="/" class="wordmark">tableflow<span class="brand-square">
+</span>
+</a>
+<p class="eyebrow">
+<%= status %>
+</p>
+<h1>Let’s try that again.</h1>
+<p>
+<%= message %>
+</p>
+<a class="button primary" href="/">Back to workspace</a>
+</main>
+</body>
+</html>

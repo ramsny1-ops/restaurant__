@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<%- include('partials/head',{title:section==='kitchen'?'Kitchen board':'Workspace'}) %>
+<meta name="csrf-token" content="<%= user.csrf %>">
+<script src="/assets/js/common.js" defer>
+</script>
+<script src="/assets/js/workspace.js" defer>
+</script>
+</head>
+<body class="workspace-body" data-section="<%= section %>" data-branch="<%= branch?.id??'' %>" data-role="<%= user.role %>" data-user="<%= user.id %>">
+<aside class="sidebar" id="sidebar">
+<a href="/" class="wordmark">tableflow<span class="brand-square">
+</span>
+</a>
+<div class="branch-box">
+<span class="small-uppercase">CURRENT VENUE</span>
+<strong>
+<%= branch?.business_name??'Your platform' %>
+</strong>
+<label class="sr-only" for="branch-switch">Switch branch</label>
+<select id="branch-switch">
+<% branches.forEach(b=>{ %>
+<option value="<%= b.id %>" <%= branch?.id===b.id?'selected':'' %>>
+<%= b.name %>
+</option>
+<% }) %>
+</select>
+</div>
+<nav class="workspace-nav">
+<% const links=user.role==='KITCHEN'||user.role==='WAITER'?[['kitchen','Kitchen board','/staff','▤']]:[['overview','Overview','/manager','◫'],['kitchen','Kitchen board','/staff','▤'],['orders','Order history','/manager/orders','≡'],['menu','Menu studio','/manager/menu','☷'],['tables','Tables and QR','/manager/tables','⊞'],['staff','Your team','/manager/staff','♧'],['audit','Activity log','/manager/audit','↺']]; links.forEach(([key,label,path,icon])=>{ %>
+<a href="<%= path %>
+<%= branch?'?branch='+branch.id:'' %>" class="<%= section===key?'active':'' %>">
+<span aria-hidden="true">
+<%= icon %>
+</span>
+<%= label %>
+</a>
+<% }); %>
+<% if(user.role==='SUPER_ADMIN'){ %>
+<div class="nav-divider">
+</div>
+<a href="/platform" class="<%= section==='platform'?'active':'' %>">
+<span aria-hidden="true">⊡</span>Platform</a>
+<% } %>
+</nav>
+<div class="sidebar-bottom">
+<span class="avatar">
+<%= user.name.slice(0,1).toUpperCase() %>
+</span>
+<div>
+<strong>
+<%= user.name %>
+</strong>
+<span>
+<%= user.role.replaceAll('_',' ').toLowerCase() %>
+</span>
+</div>
+<button id="logout" class="icon-button" aria-label="Sign out">↪</button>
+</div>
+</aside>
+<div class="workspace">
+<header class="workspace-header">
+<div class="header-left">
+<button id="sidebar-toggle" class="icon-button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+<span>
+<%= branch?.business_name??'Tableflow' %>
+</span>
+<span class="slash">/</span>
+<span class="muted">
+<%= branch?.name??'Platform administration' %>
+</span>
+</div>
+<div class="header-right">
+<span id="live-state" class="live-pill">
+<span class="dot">
+</span>Connecting</span>
+<span id="today-label" class="muted">
+</span>
+</div>
+</header>
+<main class="workspace-main">
+<div class="page-heading">
+<div>
+<p class="eyebrow" id="page-eyebrow">THE BIG PICTURE</p>
+<h1 id="page-title">Overview</h1>
+<p class="muted" id="page-description">A clear view of today’s service.</p>
+</div>
+<div id="page-actions" class="button-row">
+</div>
+</div>
+<p id="workspace-error" class="error-banner" role="alert" hidden>
+</p>
+<section id="workspace-content">
+<div class="skeleton-block">
+</div>
+<div class="skeleton-block">
+</div>
+</section>
+<footer class="workspace-footer">
+<span>TABLEFLOW / YOUR SERVICE WORKSPACE</span>
+<span>Today’s reports use East Africa Time</span>
+</footer>
+</main>
+</div>
+<dialog id="editor-dialog" class="modal">
+<div id="editor-content">
+</div>
+</dialog>
+<dialog id="detail-dialog" class="modal drawer">
+<div id="detail-content">
+</div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden>
+</div>
+</body>
+</html>

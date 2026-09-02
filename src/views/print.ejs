@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<%- include('partials/head',{title:qr.label+' QR'}) %>
+<script src="/assets/js/print.js" defer>
+</script>
+</head>
+<body class="print-page">
+<div class="print-actions">
+<button class="button primary" id="print-button">Print table stand · A6</button>
+</div>
+<main class="print-stand">
+<h1>
+<%= qr.business_name %>
+</h1>
+<p class="small-uppercase">
+<%= qr.branch_name %>
+</p>
+<img class="print-qr" src="<%= image %>" alt="QR code for <%= qr.label %>">
+<h2>Scan. Order. Enjoy.</h2>
+<p>Open your camera, scan the code<br>and make yourself at home.</p>
+<strong>
+<%= qr.label %>
+</strong>
+<footer>NO APP. NO ACCOUNT. JUST GOOD FOOD.</footer>
+<small>
+<%= url %>
+</small>
+</main>
+</body>
+</html>

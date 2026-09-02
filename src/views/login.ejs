@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<%- include('partials/head',{title:'Staff sign in'}) %>
+<script src="/assets/js/login.js" defer>
+</script>
+</head>
+<body class="login-body">
+<main class="login-layout">
+<section class="login-story">
+<a class="wordmark" href="/">tableflow<span class="brand-square">
+</span>
+</a>
+<div>
+<p class="eyebrow">A LITTLE LESS WAITING.</p>
+<h1>Good food.<br>Great service.<br>One flow.</h1>
+<p class="story-copy">From the first order to the last table.<br>A calmer way to run your floor.</p>
+</div>
+<footer>BUILT FOR HOSPITALITY</footer>
+</section>
+<section class="login-panel">
+<div class="login-box">
+<p class="eyebrow">YOUR WORKSPACE</p>
+<h2>
+<%= configured?'Welcome back.':'Make it yours.' %>
+</h2>
+<% if(configured){ %>
+<p class="muted">Sign in to keep service moving.</p>
+<form id="login-form">
+<label>Email address<input type="email" name="email" autocomplete="username" placeholder="you@restaurant.com" required>
+</label>
+<label>Password<input type="password" name="password" autocomplete="current-password" required>
+</label>
+<p id="login-error" class="error-text" role="alert">
+</p>
+<button class="button primary wide" type="submit">Sign in <span aria-hidden="true">↗</span>
+</button>
+</form>
+<p class="fine-print">Need access? Ask your restaurant manager.</p>
+<% }else{ %>
+<p>Run the one-time setup in your project terminal to create your administrator account and restaurant.</p>
+<pre>npm run setup</pre>
+<p class="muted">Then refresh this page to sign in.</p>
+<a class="button primary" href="/login">Refresh</a>
+<% } %>
+</div>
+<footer>TABLEFLOW / SERVICE, SIMPLIFIED</footer>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,26 @@
+export const schema = `
+CREATE TABLE IF NOT EXISTS businesses(id TEXT PRIMARY KEY,name TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS branches(id TEXT PRIMARY KEY,business_id TEXT NOT NULL REFERENCES businesses(id),name TEXT NOT NULL,address TEXT NOT NULL DEFAULT '',UNIQUE(id,business_id));
+CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,business_id TEXT REFERENCES businesses(id),branch_id TEXT REFERENCES branches(id),name TEXT NOT NULL,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL CHECK(role IN ('SUPER_ADMIN','MANAGER','KITCHEN','WAITER')),active INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,FOREIGN KEY(branch_id,business_id) REFERENCES branches(id,business_id));
+CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL REFERENCES users(id),csrf TEXT NOT NULL,expires INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS dining_tables(id TEXT PRIMARY KEY,branch_id TEXT NOT NULL REFERENCES branches(id),label TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,UNIQUE(branch_id,label),UNIQUE(id,branch_id));
+CREATE TABLE IF NOT EXISTS qr_tokens(id TEXT PRIMARY KEY,token TEXT NOT NULL UNIQUE,branch_id TEXT NOT NULL,table_id TEXT NOT NULL,active INTEGER NOT NULL DEFAULT 1,FOREIGN KEY(table_id,branch_id) REFERENCES dining_tables(id,branch_id));
+CREATE TABLE IF NOT EXISTS guests(id TEXT PRIMARY KEY,token_hash TEXT UNIQUE NOT NULL,qr_id TEXT NOT NULL REFERENCES qr_tokens(id),branch_id TEXT NOT NULL,table_id TEXT NOT NULL,csrf TEXT NOT NULL,expires INTEGER NOT NULL,FOREIGN KEY(table_id,branch_id) REFERENCES dining_tables(id,branch_id));
+CREATE TABLE IF NOT EXISTS categories(id TEXT PRIMARY KEY,branch_id TEXT NOT NULL REFERENCES branches(id),name TEXT NOT NULL,position INTEGER NOT NULL DEFAULT 0,UNIQUE(id,branch_id));
+CREATE TABLE IF NOT EXISTS menu_items(id TEXT PRIMARY KEY,branch_id TEXT NOT NULL REFERENCES branches(id),category_id TEXT NOT NULL,name TEXT NOT NULL,description TEXT NOT NULL DEFAULT '',price INTEGER NOT NULL CHECK(price>=0),available INTEGER NOT NULL DEFAULT 1,prep_minutes INTEGER NOT NULL DEFAULT 15,image_url TEXT NOT NULL DEFAULT '',dietary TEXT NOT NULL DEFAULT '',modifiers TEXT NOT NULL DEFAULT '[]',FOREIGN KEY(category_id,branch_id) REFERENCES categories(id,branch_id));
+CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY,number INTEGER NOT NULL UNIQUE,branch_id TEXT NOT NULL,table_id TEXT NOT NULL,guest_id TEXT NOT NULL REFERENCES guests(id),status TEXT NOT NULL CHECK(status IN ('NEW','ACCEPTED','PREPARING','READY','SERVED','CANCELLED')),payment_status TEXT NOT NULL DEFAULT 'UNPAID' CHECK(payment_status IN ('UNPAID','PAID')),total INTEGER NOT NULL,notes TEXT NOT NULL DEFAULT '',idempotency_key TEXT NOT NULL,request_hash TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,UNIQUE(guest_id,idempotency_key),FOREIGN KEY(table_id,branch_id) REFERENCES dining_tables(id,branch_id));
+CREATE TABLE IF NOT EXISTS order_items(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES orders(id),menu_item_id TEXT NOT NULL REFERENCES menu_items(id),name TEXT NOT NULL,unit_price INTEGER NOT NULL,quantity INTEGER NOT NULL,modifiers TEXT NOT NULL,line_total INTEGER NOT NULL,notes TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS order_events(id TEXT PRIMARY KEY,order_id TEXT NOT NULL REFERENCES orders(id),status TEXT NOT NULL,actor_id TEXT,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS service_requests(id TEXT PRIMARY KEY,branch_id TEXT NOT NULL REFERENCES branches(id),table_id TEXT NOT NULL REFERENCES dining_tables(id),guest_id TEXT NOT NULL REFERENCES guests(id),kind TEXT NOT NULL CHECK(kind IN ('WAITER','BILL')),status TEXT NOT NULL DEFAULT 'OPEN',created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS audit_logs(id TEXT PRIMARY KEY,actor_id TEXT NOT NULL,branch_id TEXT,action TEXT NOT NULL,entity_id TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_orders_board ON orders(branch_id,status,created_at);
+CREATE INDEX IF NOT EXISTS idx_orders_guest ON orders(guest_id,created_at);
+CREATE INDEX IF NOT EXISTS idx_menu_branch ON menu_items(branch_id,category_id,available);
+CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
+CREATE INDEX IF NOT EXISTS idx_order_events_order ON order_events(order_id,created_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires);
+CREATE INDEX IF NOT EXISTS idx_requests_open ON service_requests(branch_id,status);
+CREATE TRIGGER IF NOT EXISTS audit_immutable_update BEFORE UPDATE ON audit_logs BEGIN SELECT RAISE(ABORT,'Audit logs are append only'); END;
+CREATE TRIGGER IF NOT EXISTS audit_immutable_delete BEFORE DELETE ON audit_logs BEGIN SELECT RAISE(ABORT,'Audit logs are append only'); END;
+PRAGMA user_version=1;
+`;

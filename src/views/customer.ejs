@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<%- include('partials/head',{title:qr.business_name}) %>
+<meta name="csrf-token" content="<%= csrf %>">
+<script src="/assets/js/common.js" defer>
+</script>
+<script src="/assets/js/customer.js" defer>
+</script>
+</head>
+<body data-token="<%= qr.token %>" class="customer-body">
+<header class="customer-header">
+<a href="/q/<%= qr.token %>" class="venue-mark">
+<%= qr.business_name %>
+<span class="small-uppercase">
+<%= qr.branch_name %>
+</span>
+</a>
+<span class="table-chip">
+<span class="dot">
+</span>
+<%= qr.label %>
+</span>
+</header>
+<main class="customer-main">
+<section class="menu-intro">
+<div>
+<p class="eyebrow">MADE FRESH. SERVED WITH CARE.</p>
+<h1>Make yourself<br>at home.</h1>
+<p class="muted">Something delicious is just an order away.</p>
+</div>
+<div class="menu-note">
+<span class="small-uppercase">YOUR TABLE, YOUR PACE</span>
+<p>Browse. Choose. Enjoy.</p>
+<span>Order here. Pay with your waiter.</span>
+</div>
+</section>
+<div class="menu-toolbar">
+<label class="search-field">
+<span aria-hidden="true">⌕</span>
+<input id="menu-search" type="search" placeholder="Find something delicious" aria-label="Search the menu">
+</label>
+<button class="button quiet" id="my-orders">My orders <span id="order-count">
+</span>
+</button>
+</div>
+<nav id="categories" class="category-tabs" aria-label="Menu categories">
+</nav>
+<p id="connection-note" class="connection-note" role="status" hidden>
+</p>
+<div id="menu-content" aria-live="polite">
+<div class="skeleton-block">
+</div>
+<div class="skeleton-block">
+</div>
+</div>
+<section class="customer-help">
+<div>
+<h3>A little help?</h3>
+<p class="muted">Your team is a tap away.</p>
+</div>
+<div class="button-row">
+<button class="button" data-service="WAITER">Call waiter</button>
+<button class="button" data-service="BILL">Request bill</button>
+</div>
+</section>
+<footer class="customer-footer">
+<span>
+<%= qr.business_name %> · <%= qr.label %>
+</span>
+<span>Powered by <strong>tableflow</strong>
+</span>
+</footer>
+</main>
+<button id="basket-bar" class="basket-bar" hidden>
+<span id="basket-count">0 items</span>
+<strong>View your order</strong>
+<span id="basket-total">
+</span>
+</button>
+<dialog id="dish-dialog" class="modal">
+<div id="dish-detail">
+</div>
+</dialog>
+<dialog id="basket-dialog" class="modal drawer">
+<div id="basket-detail">
+</div>
+</dialog>
+<dialog id="orders-dialog" class="modal drawer">
+<div class="modal-top">
+<h2>Your orders</h2>
+<button class="icon-button" data-close aria-label="Close orders">×</button>
+</div>
+<div id="customer-orders">
+</div>
+</dialog>
+<div id="toast" class="toast" role="status" hidden>
+</div>
+</body>
+</html>
